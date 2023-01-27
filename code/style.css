@@ -1,0 +1,46 @@
+
+#Visulization{
+    width: 1800px;
+    height : 800px;
+}
+#graph{
+    margin-top: 30px;
+    margin-bottom: 100px;
+    width :1500px;
+    height : 600px;
+    border :2px solid white;
+    margin-left: 200px;
+}
+#pieChart{
+    margin-top :50px;
+    width : 650px;
+    height : 550px;
+    margin-left: 550px;
+    border : 2px solid white;
+}
+button{
+    width :250px;
+    height:50px;
+    border-radius: 15px;
+    margin-left: 100px;
+    font-size: xx-large;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    color :#FFFFF0;
+    background-color: #660033;
+}
+#currName{
+    color:bisque;
+    margin-left:200px;
+    margin-top:60px;
+}
+#Project{
+    text-align: center;
+    font-size : 50px;
+    color : #CCCCCC;
+    margin-bottom: 50px;
+    position: sticky;
+    top: 0;
+}
+body {
+    background-color: #0E0E10;
+}

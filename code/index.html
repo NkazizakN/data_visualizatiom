@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Web Socket Client</title>
+    <h1 id="Project">MDX CryptoWatch</h1>
+</head>
+
+<body>
+    <div id="Choices">
+        <button onclick="Visual('bitcoin')">BITCOIN</button>
+        <button onclick="Visual('etherium')">ETHERIUM</button>
+        <button onclick="Visual('doge')">DOGECOIN</button>
+        <button onclick="Visual('binance')">BINANCE</button>
+        <button onclick="Visual('request')">REQUEST</button>
+
+    </div>
+    <div id="Visulization">
+        <h1 id="currName"></h1>
+        <div id="graph"></div>
+        <div id="pieChart"></div>
+    </div>
+</body>
+<script>
+    let myData = {
+        type: "",
+        sentimental: {},
+        numerical: {}
+    };
+    let myDataPredictions = {
+        numerical: {}
+    };
+    let connection = new WebSocket("wss://2gmhsolzr3.execute-api.us-east-1.amazonaws.com/production");
+    connection.onopen = function (event) {
+        console.log("Connected : " + JSON.stringify(event));
+        console.log(event);
+    };
+
+    connection.onmessage = function (msg) {
+        mydata = JSON.parse(msg.data);
+        
+        if (mydata.type === "both") {
+            myData = mydata;
+            drawCandleStick("bitcoin", myData.numerical);
+            drawPieChart("bitcoin", myData.sentimental);
+        }
+        else if (mydata.type === "s") {
+            console.log("New sentiment data Received");
+            console.log("Received Data : " + JSON.stringify(mydata));
+            myData.sentimental = mydata;
+
+            drawPieChart("bitcoin", myData.sentimental);
+
+        }
+        else if (mydata.type === "n") {
+            console.log("New numerical data Received");
+            console.log("Received Data : " + JSON.stringify(mydata));
+            myData.numerical = mydata;
+            drawCandleStick("bitcoin", myData.numerical);
+        }
+        
+
+    }
+    connection.onerror = function (error) {
+        console.log("WebSocket Error :" + JSON.stringify(error));
+    }
+    function Visual(curr) {
+        drawCandleStick(curr, myData.numerical);
+        drawPieChart(curr, myData.sentimental);
+    }
+    function drawPieChart(currency, Mydata) {
+        let lent = Mydata[currency].Items;
+        let len = lent.length;
+        let smixed = 0;
+        let sneutral = 0;
+        let spositive = 0;
+        let snegative = 0;
+        for (let i = 0; i < len; i++) {
+            smixed += Mydata[currency].Items[i].mixed;
+            sneutral += Mydata[currency].Items[i].neutral;
+            spositive += Mydata[currency].Items[i].positive;
+            snegative += Mydata[currency].Items[i].negative;
+        }
+        let data = [{
+            title: "Sentiment Analysis ",
+            font: {
+                size: 20
+            },
+            type: "pie",
+            values: [smixed, snegative, sneutral, spositive],
+            labels: ["Mixed", "Negative", "Neutral", "Positive"],
+            textinfo: "label+percent",
+            insidetextorientation: "radial"
+        }]
+
+        let layout = [{
+            height: 800,
+            width: 800
+        }]
+        Plotly.newPlot('pieChart', data, layout);
+    }
+    let pcloseArr = [];
+    let popenArr = [];
+    let plowArr = [];
+    let phighArr = [];
+    let ptimeStampArr = [];
+    function randomPredictions(curren, data) {
+        for (let j = 0; j < 50; j++) {
+            pcloseArr.pop();
+            popenArr.pop();
+            plowArr.pop();
+            phighArr.pop();
+            ptimeStampArr.pop();
+        }
+        let l = data[curren].Items.length - 1;
+        let ct = data[curren].Items[l].pricetimestamp;
+        let y = 100;
+        let z = 50;
+        if (curren === "doge" || curren === "binance") {
+            y = 2;
+            z = 5;
+        }
+        else if (curren === "request") {
+            y = 1;
+            z = 0.01;
+        }
+        else if (curren === "etherium") {
+            y = 10;
+            z = 6;
+        }
+        for (let k = 0; k < 50; k++) {
+            upct = ct + 300000;
+            ptimeStampArr.push(upct);
+            ct = upct;
+            let x = Math.floor((Math.random() * y) - z);
+            pcloseArr.push(data[curren].Items[k].close + x);
+            popenArr.push(data[curren].Items[k].open + x);
+            plowArr.push(data[curren].Items[k].low + x);
+            phighArr.push(data[curren].Items[k].high + x);
+        }
+    }
+    function drawCandleStick(currency, Mydata) {
+        //extracting data for plotting chart
+        document.getElementById("currName").innerHTML = currency;
+
+        let lent = Mydata[currency].Items;
+        let len = lent.length;
+        let closeArr = [];
+        let openArr = [];
+        let lowArr = [];
+        let highArr = [];
+        let timeStampArr = [];
+        randomPredictions(currency, Mydata);
+        for (let i = 0; i < len; i++) {
+            closeArr.push(Mydata[currency].Items[i].close);
+            openArr.push(Mydata[currency].Items[i].open);
+            lowArr.push(Mydata[currency].Items[i].low);
+            highArr.push(Mydata[currency].Items[i].high);
+            timeStampArr.push(Mydata[currency].Items[i].pricetimestamp);
+        }
+
+
+        ///graph Stuff here and on
+        let trace1 =
+        {
+            x: timeStampArr,
+            close: closeArr,
+            decreasing: { line: { color: '#FF0000' } },
+            high: highArr,
+            increasing: { line: { color: '#00FF00' } },
+            line: { color: 'rgba(31,119,180,1)' },
+            low: lowArr,
+            open: openArr,
+            type: 'candlestick',
+            xaxis: 'x',
+            yaxis: 'y'
+        };
+        let trace2 =
+        {
+            x: ptimeStampArr,
+            close: pcloseArr,
+            decreasing: { line: { color: '#000000' } },
+            high: phighArr,
+            increasing: { line: { color: '#0000FF' } },
+            line: { color: 'rgba(31,119,180,1)' },
+            low: plowArr,
+            open: popenArr,
+            type: 'candlestick',
+            xaxis: 'x',
+            yaxis: 'y'
+        };
+
+        let data = [trace1, trace2];
+        let layout = {
+            title: "Numerical Data",
+            font: {
+                size: 12.5
+            },
+            dragmode: 'zoom',
+            margin: {
+                r: 10,
+                t: 25,
+                b: 40,
+                l: 60
+            },
+            showlegend: false,
+            xaxis: {
+                autorange: true,
+                title: 'Date',
+                type: 'date'
+            },
+            yaxis: {
+                autorange: true,
+                type: 'linear'
+            }
+        };
+        Plotly.newPlot('graph', data, layout);
+    }
+
+
+
+</script>
+
+</html>

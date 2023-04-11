@@ -6,9 +6,9 @@ let Twitter = require('twitter');
 //configuring twitter Connection
 let twitterClient = new Twitter({
     consumer_key: "IXHxiC6TetMXRHq6URTS9dhco",
-    consumer_secret: "EBO5zQuwpsmNCBs7Lk5hYuPJcFnHVzeLhBbvD0Et3Lhy9vSnNW",
-    access_token_key: "1508260930378948614-fILcxE3qhL5TTDjBZ4Ry1LlGbqB9Hq",
-    access_token_secret: "XOYeoD86TdjrcTzKcTHFOwdktn6ZLXyWPLyHKh7oI8chP"
+    consumer_secret: "AEEBO5zQuwpsmNCBs7Lk5hYuPJcFnHVzeLhBbvD0Et3Lhy9vSnNW",
+    access_token_key: "GV1508260930378948614-fILcxE3qhL5TTDjBZ4Ry1LlGbqB9Hq",
+    access_token_secret: "2rXOYeoD86TdjrcTzKcTHFOwdktn6ZLXyWPLyHKh7oI8chP"
 });
 
 //configuring AWS access
